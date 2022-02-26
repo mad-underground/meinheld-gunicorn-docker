@@ -3,7 +3,19 @@ FROM python:3.7-slim-buster
 LABEL maintainer="Sebastian Ramirez <tiangolo@gmail.com>"
 
 COPY requirements.txt /tmp/requirements.txt
-RUN pip install --no-cache-dir -r /tmp/requirements.txt
+
+RUN apt-get update \
+    && apt-get install --no-install-recommends --no-install-suggests -y \
+        ca-certificates \
+        build-essential \
+        default-libmysqlclient-dev \
+        libpcre3-dev \
+        procps \
+        curl \
+    && pip install --upgrade pip \
+    && pip install -r /tmp/requirements.txt \
+    && apt-get --purge autoremove -y build-essential default-libmysqlclient-dev \
+    && rm -rf /var/lib/apt/lists/*
 
 COPY ./entrypoint.sh /entrypoint.sh
 RUN chmod +x /entrypoint.sh
